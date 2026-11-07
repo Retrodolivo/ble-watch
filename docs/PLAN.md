@@ -17,6 +17,7 @@ Each step has a **Build** part (what we make) and a **Learn** part (what you'll 
 - Build: a BLE peripheral with a writable Current Time characteristic (CTS format), written from the nRF Connect app on Android (saved as a macro).
 - Learn: advertising, connections, GATT, pairing basics, debugging BLE with the phone.
 - Done when: the phone sets the time and the display updates.
+- Progress: advertising as "ble-watch" with Zephyr's CTS; writing Current Time sets the clock (`app/src/ble.c`). Flashed and tested with nRF Connect. Display update waits for the HAT.
 
 ## Step 4: Remote firmware updates
 - Build: MCUboot plus SMP over BLE, with signed images, updated through the nRF Connect Device Manager app.

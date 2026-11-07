@@ -1,6 +1,6 @@
 /*
  * ble-watch: test pattern on the e-ink display, LED blink, and a clock
- * that logs HH:MM at each new minute.
+ * that logs HH:MM at each new minute and is set over BLE (Current Time Service).
  */
 
 #include <stdio.h>
@@ -12,6 +12,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
 
+#include "ble.h"
 #include "clock.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
@@ -150,14 +151,20 @@ int main(void)
 
 	clock_set_from_build_time();
 
+	/* If BLE fails, the clock still runs from the build time. */
+	(void)ble_init();
+
 	while (1) {
+		/*
+		 * Sleep until hh:mm:00, or until the time is set (at boot or
+		 * from the phone). The thread uses no CPU while it waits.
+		 */
+		(void)clock_wait_next_minute();
+
 		uint32_t now = clock_now();
 
 		LOG_INF("Time %02u:%02u (uptime %lld s)", now / 3600, (now / 60) % 60,
 			k_uptime_get() / MSEC_PER_SEC);
-
-		/* Sleep until hh:mm:00. The thread uses no CPU while it waits. */
-		k_msleep(clock_ms_to_next_minute());
 	}
 
 	return 0;

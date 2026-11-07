@@ -5,6 +5,7 @@
 #ifndef BLE_WATCH_CLOCK_H_
 #define BLE_WATCH_CLOCK_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define CLOCK_SECONDS_PER_DAY (24 * 60 * 60)
@@ -17,5 +18,11 @@ uint32_t clock_now(void);
 
 /* Milliseconds until the next full minute (00 seconds). */
 uint32_t clock_ms_to_next_minute(void);
+
+/*
+ * Block until the next full minute, or until clock_set() is called.
+ * Returns true if it woke up because the time was set.
+ */
+bool clock_wait_next_minute(void);
 
 #endif /* BLE_WATCH_CLOCK_H_ */

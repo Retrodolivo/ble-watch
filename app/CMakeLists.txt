@@ -9,4 +9,4 @@ set(SHIELD waveshare_epaper_gdeh0154a07)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ble_watch)
 
-target_sources(app PRIVATE src/main.c src/clock.c)
+target_sources(app PRIVATE src/main.c src/clock.c src/ble.c)
