@@ -35,7 +35,7 @@
 | CS      | chip select    | D10            | P1.12        |
 | DC      | data/command   | D9             | P1.11        |
 | RST     | reset (low)    | D8             | P1.10        |
-| BUSY    | busy (high)    | D7             | P1.08        |
+| BUSY    | busy (high), internal pull-down (app overlay) | D7 | P1.08 |
 | PWR     | power enable (only on newer HATs) | tie to VDD | - |
 
 Verified in the generated `zephyr.dts` of a test build (NCS v3.4.2). Not yet tested on hardware.
