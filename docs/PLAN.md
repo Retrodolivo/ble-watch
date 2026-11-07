@@ -11,6 +11,7 @@ Each step has a **Build** part (what we make) and a **Learn** part (what you'll 
 - Build: timekeeping with the RTC, HH:MM on screen, partial refresh every minute and a full refresh now and then.
 - Learn: nRF52840 clocks and RTC, Zephyr timers and threads, e-ink refresh modes and ghosting, sleep modes, measuring current.
 - Done when: it keeps time for 24 h and the idle current has been measured.
+- Progress (started while waiting for the display HAT): clock module that logs HH:MM each minute (`app/src/clock.c`). Flashed: logs the time each minute. 24 h drift test still to do.
 
 ## Step 3: Set the time from the phone
 - Build: a BLE peripheral with a writable Current Time characteristic (CTS format), written from the nRF Connect app on Android (saved as a macro).

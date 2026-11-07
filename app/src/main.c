@@ -1,7 +1,9 @@
 /*
- * ble-watch: step 1, test pattern on the e-ink display, LED blink and logging.
+ * ble-watch: test pattern on the e-ink display, LED blink, and a clock
+ * that logs HH:MM at each new minute.
  */
 
+#include <stdio.h>
 #include <string.h>
 
 #include <zephyr/kernel.h>
@@ -9,6 +11,8 @@
 #include <zephyr/drivers/display.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
+
+#include "clock.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -101,9 +105,29 @@ static int draw_test_pattern(void)
 	return 0;
 }
 
+/* Runs in interrupt context every BLINK_PERIOD_MS: keep it short. */
+static void blink_handler(struct k_timer *timer)
+{
+	ARG_UNUSED(timer);
+	gpio_pin_toggle_dt(&led);
+}
+
+K_TIMER_DEFINE(blink_timer, blink_handler, NULL);
+
+/* Start time = build time ("HH:MM:SS" from the compiler), until BLE can set it. */
+static void clock_set_from_build_time(void)
+{
+	unsigned int h, m, s;
+
+	if (sscanf(__TIME__, "%u:%u:%u", &h, &m, &s) == 3) {
+		clock_set(h, m, s);
+	} else {
+		clock_set(0, 0, 0);
+	}
+}
+
 int main(void)
 {
-	uint32_t count = 0;
 	int ret;
 
 	LOG_INF("ble-watch starting on %s", CONFIG_BOARD_TARGET);
@@ -119,16 +143,21 @@ int main(void)
 		return 0;
 	}
 
-	/* Keep blinking even if the display fails, so we know the app runs. */
+	/* Blink keeps going even if the display fails, so we know the app runs. */
+	k_timer_start(&blink_timer, K_MSEC(BLINK_PERIOD_MS), K_MSEC(BLINK_PERIOD_MS));
+
 	(void)draw_test_pattern();
 
+	clock_set_from_build_time();
+
 	while (1) {
-		gpio_pin_toggle_dt(&led);
-		if ((count % 10) == 0) {
-			LOG_INF("alive, toggle #%u", count);
-		}
-		count++;
-		k_msleep(BLINK_PERIOD_MS);
+		uint32_t now = clock_now();
+
+		LOG_INF("Time %02u:%02u (uptime %lld s)", now / 3600, (now / 60) % 60,
+			k_uptime_get() / MSEC_PER_SEC);
+
+		/* Sleep until hh:mm:00. The thread uses no CPU while it waits. */
+		k_msleep(clock_ms_to_next_minute());
 	}
 
 	return 0;
