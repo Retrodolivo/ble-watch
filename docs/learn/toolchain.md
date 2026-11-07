@@ -27,3 +27,10 @@ How to check a DK is connected on Linux: `lsusb | grep -i segger` (vendor ID `13
 - `/dev/ttyACM*` numbers are not stable. They depend on what was plugged in first, so check
   each time instead of hard-coding a number.
 - To open the ports without `sudo`, your user must be in the `dialout` group (`groups`).
+
+## Building a freestanding app (our repo lives outside `~/ncs/v3.4.2`)
+- `west build` is a Zephyr *extension* command: west only knows it when it finds a workspace.
+  From outside the workspace, west finds it through `ZEPHYR_BASE`. Without it you get
+  `west: unknown command "build"`.
+- The `ncs` alias in `~/.zshrc` activates the venv and sets `ZEPHYR_BASE` and `ZEPHYR_SDK_INSTALL_DIR`:
+  `ncs`, then `west build -p -b nrf52840dk/nrf52840 app` from the repo root.
