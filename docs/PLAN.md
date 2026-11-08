@@ -23,3 +23,4 @@ Each step has a **Build** part (what we make) and a **Learn** part (what you'll 
 - Build: MCUboot plus SMP over BLE, with signed images, updated through the nRF Connect Device Manager app.
 - Learn: bootloaders, flash partitions, image signing, swap and rollback, SMP.
 - Done when: a new version is installed over the air, and a bad image rolls back.
+- Progress (started while waiting for the display HAT): MCUboot added via sysbuild (`app/sysbuild.conf`), app signed with the demo key. Flashed: MCUboot boots the app, BLE still works. Next: SMP over BLE.
