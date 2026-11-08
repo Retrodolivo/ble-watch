@@ -34,3 +34,16 @@
 - A new image is written into slot 1. At the next reset MCUboot **swaps** slot 0 and slot 1, sector by sector.
 - The old image is now in slot 1. If the new image was sent as a **test** and does not mark itself as
   "confirmed", MCUboot swaps back at the next reset: that is the **rollback** in the plan.
+
+## SMP and MCUmgr: updates over BLE (`app/prj.conf`)
+- **MCUmgr** is Zephyr's device management subsystem. It runs in the **app**, not in MCUboot.
+  MCUboot never uses the radio: the app receives the new image and writes it to slot 1.
+- **SMP** (Simple Management Protocol) is MCUmgr's message format: small requests and responses
+  encoded in CBOR. Over BLE it is one GATT service (UUID `8D53DC1D-1DB7-4CD3-868B-8A527460AA84`)
+  with one characteristic: the phone writes requests, the watch answers with notifications.
+- Command **groups**: `img` (list images, upload, test/confirm), `os` (reset, echo, info).
+- `CONFIG_NCS_SAMPLE_MCUMGR_BT_OTA_DFU=y` is an NCS helper that turns on all of this at once
+  (MCUmgr, the BT transport, `img` and `os` groups, bigger BT buffers for faster upload).
+- `CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION`: the version in the image header. Device Manager shows it.
+- `build/dfu_application.zip` is the upload package for Device Manager (signed bin + manifest).
+- Cost: the app grew from ~149 KB to ~170 KB of flash.
