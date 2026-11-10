@@ -1,0 +1,41 @@
+# Build the firmware on every push to main, on the self-hosted runner (VPS).
+#
+# Security: the repo is public and the runner can use Docker on the VPS, so this
+# workflow never runs for pull requests. The repo setting "Require approval for
+# all external contributors" (Settings > Actions > General) must stay on.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One build at a time: the VPS has 1 CPU and 2 GB RAM.
+concurrency:
+  group: build
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, x64, ble-watch]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build firmware in the NCS container
+        run: ci/build.sh
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ github.sha }}
+          path: |
+            build/dfu_application.zip
+            build/app/zephyr/zephyr.signed.bin
+            build/app/zephyr/zephyr.signed.hex
+            build/mcuboot/zephyr/zephyr.hex
+          if-no-files-found: error
+          retention-days: 30

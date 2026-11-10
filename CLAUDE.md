@@ -32,6 +32,8 @@ See `docs/PLAN.md` for the steps and the current step.
 ## Layout
 ```
 app/            Zephyr application (CMakeLists.txt, prj.conf, src/, boards/*.overlay)
+ci/build.sh     CI build in Nordic's NCS toolchain container (pins the NCS version)
+.github/workflows/  GitHub Actions, run on the self-hosted runner on the VPS
 docs/PLAN.md    plan, step status, learning notes
 docs/hardware.md  parts, pinout, versions, measurements
 docs/learn/     one short note per concept learned
