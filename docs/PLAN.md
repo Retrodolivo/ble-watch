@@ -5,8 +5,8 @@ Steps 1–4 run on the nRF52840 DK. Step 5 moves the firmware to the real watch.
 Steps 1b and 4b add CI/CD (build and release automation on GitHub) and don't change the firmware itself.
 
 ## Step 1: Foundation, LED face and accelerometer  ← current
-- Build: repo skeleton, toolchain check, logging, then the 11 binary LEDs on a breadboard (a counter or test pattern), then the LIS2DW12 breakout with a double-tap interrupt that lights the LEDs.
-- Learn: NCS, `west` and the build system, devicetree and Kconfig, GPIO and the LED API, flashing and logging, I²C, sensor drivers and interrupts (triggers).
+- Build: repo skeleton, toolchain check, logging, then the 11 binary LEDs on a breadboard (a counter or test pattern), each driven by a PWM channel (`pwm-leds`) at one fixed brightness (`CONFIG_FACE_BRIGHTNESS`, no runtime setting), then the LIS2DW12 breakout with a double-tap interrupt that lights the LEDs.
+- Learn: NCS, `west` and the build system, devicetree and Kconfig, GPIO, PWM and the LED API, pinctrl, flashing and logging, I²C, sensor drivers and interrupts (triggers).
 - Done when: a double-tap on the accelerometer lights a test pattern on the LEDs, and the pinout is recorded in `docs/hardware.md`.
 
 ## Step 1b: Continuous integration (CI) on a self-hosted runner

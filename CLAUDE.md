@@ -13,7 +13,7 @@ See `docs/PLAN.md` for the steps and the current step.
 
 ## Hardware
 - Development board: **nRF52840 DK** (PCA10056). Zephyr board target: `nrf52840dk/nrf52840`.
-- Display: 11 yellow LEDs, each on its own GPIO through a resistor, about 1 mA each. Layout:
+- Display: 11 yellow LEDs, each on its own GPIO (one PWM channel each, fixed brightness) through a resistor, about 1 mA each. Layout:
   ```
   Hours:        16   8   4   2   1     (0–23)
   Minutes:  32  16   8   4   2   1
@@ -43,7 +43,7 @@ docs/learn/     one short note per concept learned
 - **Small steps.** One task at a time. Each task ends with something the user can see on the DK (LED, log line) and a commit.
 - **Build before you claim success.** Run the build and show the result. If you can't flash or see the hardware, say so and ask the user to check.
 - **Ask before flashing** or touching anything that changes the hardware state, and before adding a dependency.
-- Prefer Zephyr/NCS APIs and existing samples over hand-written drivers. Configure through devicetree and Kconfig, not hard-coded pins. Describe the 11 LEDs in devicetree (e.g. a `gpio-leds` node) and drive them with the GPIO/LED APIs.
+- Prefer Zephyr/NCS APIs and existing samples over hand-written drivers. Configure through devicetree and Kconfig, not hard-coded pins. The 11 LEDs are two `pwm-leds` nodes (`hour_leds`, `minute_leds`) in the overlay, driven with the LED API from `app/src/face.c`.
 - **Power matters.** It's a watch on a small battery: the LEDs are off by default, and the CPU sleeps between events. Don't add busy loops or polling.
 - C (C11), Zephyr coding style, `LOG_MODULE_REGISTER` per file, no dynamic allocation unless needed.
 - Commits: short imperative subject (e.g. "Add LIS2DW12 overlay").

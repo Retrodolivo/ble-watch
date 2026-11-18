@@ -43,4 +43,27 @@ Decided 2026-11-08. Two 3D-printed parts: a **clear SLA resin top** (the PCB is 
 - nRF52840 DK (PCA10056), Zephyr board target `nrf52840dk/nrf52840`
 - LIS2DW12 breakout board on the DK's I²C (Arduino header). The exact board is still to be chosen.
 - 11 yellow LEDs plus resistors on a breadboard to test the binary display layout
-- Pinout and NCS version: to be recorded here during step 1
+- NCS v3.4.2
+- Pinout: below (the accelerometer part is still to be chosen)
+
+## DK pinout (step 1)
+
+LED wiring: pin → resistor → LED anode, LED cathode → GND. A high pin lights the LED.
+Each LED is one PWM channel; set in `app/boards/nrf52840dk_nrf52840.overlay`.
+
+| LED | Value | Arduino | nRF pin | PWM |
+|-----|-------|---------|---------|-----|
+| H16 | 16 | D3  | P1.04 | pwm1 ch0 |
+| H8  | 8  | D4  | P1.05 | pwm0 ch3 |
+| H4  | 4  | D5  | P1.06 | pwm0 ch2 |
+| H2  | 2  | D6  | P1.07 | pwm0 ch1 |
+| H1  | 1  | D7  | P1.08 | pwm0 ch0 |
+| M32 | 32 | D8  | P1.10 | pwm2 ch2 |
+| M16 | 16 | D9  | P1.11 | pwm2 ch1 |
+| M8  | 8  | D10 | P1.12 | pwm2 ch0 |
+| M4  | 4  | D11 | P1.13 | pwm1 ch3 |
+| M2  | 2  | D12 | P1.14 | pwm1 ch2 |
+| M1  | 1  | D13 | P1.15 | pwm1 ch1 |
+
+Kept free for the accelerometer: D14/D15 (P0.26/P0.27, `arduino_i2c` SDA/SCL) and D2 (P1.03, planned for INT1).
+DK LED1 (P0.13) stays the GPIO heartbeat.

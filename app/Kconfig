@@ -1,0 +1,16 @@
+# Options of this app. They appear in menuconfig under "ble-watch" and are
+# set in prj.conf like any Zephyr option (CONFIG_FACE_BRIGHTNESS=...).
+
+menu "ble-watch"
+
+config FACE_BRIGHTNESS
+	int "LED face brightness, in percent"
+	range 1 100
+	default 50
+	help
+	  PWM duty cycle of a lit face LED. Lower = dimmer and less current.
+
+endmenu
+
+# Zephyr's own options. Every app Kconfig file must end with this.
+source "Kconfig.zephyr"

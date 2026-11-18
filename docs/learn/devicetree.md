@@ -5,7 +5,7 @@ How `GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios)` in `app/src/main.c` gets its value
 ## 1. Sources (merged in this order, later wins)
 - SoC: `zephyr/dts/arm/nordic/nrf52840.dtsi` defines `gpio0: gpio@50000000` (the hardware block).
 - Board: `zephyr/boards/nordic/nrf52840dk/nrf52840dk_nrf52840.dts` defines `led0: led_0 { gpios = <&gpio0 13 GPIO_ACTIVE_LOW>; }` and the alias `led0 = &led0;`.
-- App overlay: `app/boards/nrf52840dk_nrf52840.overlay` (none yet; the display goes here).
+- App overlay: `app/boards/nrf52840dk_nrf52840.overlay` (the 11 LEDs and the accelerometer go here).
 
 ## 2. Build output
 - `build/app/zephyr/zephyr.dts`: the merged tree. Each line has a comment saying which file set it. Best place to debug.

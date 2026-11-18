@@ -47,3 +47,9 @@
 - `CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION`: the version in the image header. Device Manager shows it.
 - `build/dfu_application.zip` is the upload package for Device Manager (signed bin + manifest).
 - Cost: the app grew from ~149 KB to ~170 KB of flash.
+
+## Test vs confirm (the rollback)
+- **Test** = "boot the new image once". MCUboot swaps, the new image runs, but it is not *confirmed*.
+- **Confirm** = "keep it". The phone (Device Manager, "Test and confirm") or the app itself
+  (`boot_write_img_confirmed()`) marks it OK. Our app doesn't confirm itself yet.
+- Not confirmed at the next reset -> MCUboot swaps back to the old image. That's the rollback.

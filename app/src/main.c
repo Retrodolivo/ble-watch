@@ -1,110 +1,27 @@
 /*
- * ble-watch: test pattern on the e-ink display, LED blink, and a clock
- * that logs HH:MM at each new minute and is set over BLE (Current Time Service).
+ * ble-watch: heartbeat LED, binary LED face test at boot, and a clock that
+ * logs HH:MM at each new minute and is set over BLE (Current Time Service).
  */
 
 #include <stdio.h>
-#include <string.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
-#include <zephyr/drivers/display.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
 
 #include "ble.h"
 #include "clock.h"
+#include "face.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 #define BLINK_PERIOD_MS 500
-
-/* Panel size from the shield overlay (width/height properties). */
-#define DISPLAY_NODE DT_CHOSEN(zephyr_display)
-#define WIDTH        DT_PROP(DISPLAY_NODE, width)
-#define HEIGHT       DT_PROP(DISPLAY_NODE, height)
-#define SQUARE       25 /* checkerboard square size in pixels */
+#define WALK_STEP_MS    200  /* per LED in the boot test */
+#define SHOW_TIME_MS    5000 /* how long the time stays on at boot */
 
 /* "led0" is an alias in the board devicetree (LED1 on the DK). */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
-
-/* "zephyr,display" is chosen by the shield overlay. */
-static const struct device *const display = DEVICE_DT_GET(DISPLAY_NODE);
-
-/* 1 bit per pixel: 200 * 200 / 8 = 5000 bytes. */
-static uint8_t framebuf[WIDTH * HEIGHT / 8];
-
-/*
- * Set one pixel to black. MONO10 means bit 1 = black.
- * The SSD16xx driver uses "vertical tiling" in normal orientation:
- * each byte holds 8 pixels stacked vertically, MSB on top.
- */
-static void set_black(int x, int y, bool vtiled)
-{
-	size_t idx;
-	uint8_t bit;
-
-	if (vtiled) {
-		idx = (y / 8) * WIDTH + x;
-		bit = 7 - (y % 8);
-	} else {
-		idx = (y * WIDTH + x) / 8;
-		bit = 7 - (x % 8);
-	}
-	framebuf[idx] |= BIT(bit);
-}
-
-static int draw_test_pattern(void)
-{
-	struct display_capabilities caps;
-	struct display_buffer_descriptor desc = {
-		.buf_size = sizeof(framebuf),
-		.width = WIDTH,
-		.height = HEIGHT,
-		.pitch = WIDTH,
-	};
-	bool vtiled;
-	int ret;
-
-	if (!device_is_ready(display)) {
-		LOG_ERR("Display %s not ready", display->name);
-		return -ENODEV;
-	}
-
-	display_get_capabilities(display, &caps);
-	vtiled = (caps.screen_info & SCREEN_INFO_MONO_VTILED) != 0;
-	LOG_INF("Display %s: %ux%u, pixel format 0x%x, vtiled %d", display->name,
-		caps.x_resolution, caps.y_resolution, caps.current_pixel_format, vtiled);
-
-	/* Checkerboard, plus a solid 3-pixel black border. */
-	memset(framebuf, 0, sizeof(framebuf));
-	for (int y = 0; y < HEIGHT; y++) {
-		for (int x = 0; x < WIDTH; x++) {
-			bool square = ((x / SQUARE) + (y / SQUARE)) % 2 == 0;
-			bool border = x < 3 || y < 3 || x >= WIDTH - 3 || y >= HEIGHT - 3;
-
-			if (square || border) {
-				set_black(x, y, vtiled);
-			}
-		}
-	}
-
-	ret = display_write(display, 0, 0, &desc, framebuf);
-	if (ret < 0) {
-		LOG_ERR("display_write failed: %d", ret);
-		return ret;
-	}
-
-	/* Blanking off triggers the full refresh (takes a few seconds on e-ink). */
-	ret = display_blanking_off(display);
-	if (ret < 0) {
-		LOG_ERR("display_blanking_off failed: %d", ret);
-		return ret;
-	}
-
-	LOG_INF("Test pattern drawn");
-	return 0;
-}
 
 /* Runs in interrupt context every BLINK_PERIOD_MS: keep it short. */
 static void blink_handler(struct k_timer *timer)
@@ -114,6 +31,30 @@ static void blink_handler(struct k_timer *timer)
 }
 
 K_TIMER_DEFINE(blink_timer, blink_handler, NULL);
+
+/*
+ * Boot test pattern: light each LED alone, hours 1..16 then minutes 1..32,
+ * so a wrong or dead wire is easy to spot. Then show the time, then off.
+ * k_msleep() puts the thread to sleep: the CPU is idle in between.
+ */
+static void face_test(void)
+{
+	for (int i = 0; i < 5; i++) {
+		(void)face_show_bits(BIT(i), 0);
+		k_msleep(WALK_STEP_MS);
+	}
+	for (int i = 0; i < 6; i++) {
+		(void)face_show_bits(0, BIT(i));
+		k_msleep(WALK_STEP_MS);
+	}
+
+	uint32_t now = clock_now();
+
+	LOG_INF("Face shows %02u:%02u", now / 3600, (now / 60) % 60);
+	(void)face_show_time(now / 3600, (now / 60) % 60);
+	k_msleep(SHOW_TIME_MS);
+	(void)face_off();
+}
 
 /* Start time = build time ("HH:MM:SS" from the compiler), until BLE can set it. */
 static void clock_set_from_build_time(void)
@@ -144,12 +85,14 @@ int main(void)
 		return 0;
 	}
 
-	/* Blink keeps going even if the display fails, so we know the app runs. */
+	/* Heartbeat: shows that the app runs. */
 	k_timer_start(&blink_timer, K_MSEC(BLINK_PERIOD_MS), K_MSEC(BLINK_PERIOD_MS));
 
-	(void)draw_test_pattern();
-
 	clock_set_from_build_time();
+
+	if (face_init() == 0) {
+		face_test();
+	}
 
 	/* If BLE fails, the clock still runs from the build time. */
 	(void)ble_init();
@@ -165,6 +108,8 @@ int main(void)
 
 		LOG_INF("Time %02u:%02u (uptime %lld s)", now / 3600, (now / 60) % 60,
 			k_uptime_get() / MSEC_PER_SEC);
+		
+		(void)face_show_time(now / 3600, (now / 60) % 60);
 	}
 
 	return 0;

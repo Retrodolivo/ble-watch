@@ -8,7 +8,7 @@ Learn in layers. Go to the next layer only when the project needs it.
 ### The software stack, top to bottom
 ```
 our code (app/src/ble.c, clock.c, main.c)
-  Zephyr APIs (bt_le_adv_start, display_write, k_uptime_get, ...)
+  Zephyr APIs (bt_le_adv_start, k_uptime_get, ...)
   Zephyr drivers / BT host
   nrfx  (Nordic's thin C layer over the registers)
   hardware peripherals (registers at fixed memory addresses)
@@ -31,8 +31,8 @@ Nordic peripherals all follow the same pattern, so learning one teaches you all:
 |---|---|---|
 | CLOCK | starts the crystals: 32 MHz (HFXO) and 32.768 kHz (LFXO) | Zephyr and the BLE controller |
 | RTC1 | low-power counter on the 32.768 kHz clock | Zephyr kernel timer, so `k_uptime_get()` and our clock |
-| GPIO / GPIOTE | pins, and pin interrupts | LEDs, display DC/RST/BUSY |
-| SPIM | SPI master with EasyDMA | e-ink display (`arduino_spi`) |
+| GPIO / GPIOTE | pins, and pin interrupts | LEDs, accelerometer INT1 |
+| TWIM | I²C master with EasyDMA | LIS2DW12 accelerometer (`arduino_i2c`) |
 | UARTE | serial port with EasyDMA | logs on the DK's USB serial |
 | RADIO (+ RTC0, TIMER0, some PPI channels, crypto) | 2.4 GHz radio | **owned by the SoftDevice Controller**, not by us |
 | NVMC (flash) | write and erase internal flash | MCUboot and updates (Step 4) |
@@ -66,7 +66,7 @@ Controller (Nordic SoftDevice Controller) Link Layer - advertising, connection e
 
 ## Layer 2: reference, only when you need it (don't read cover to cover)
 - **nRF52840 Product Specification** (docs.nordicsemi.com). Read one peripheral chapter at a time,
-  when we use it: RTC (Step 2), SPIM (display), POWER and CLOCK (Step 2 current), NVMC (Step 4).
+  when we use it: RTC (Step 2), TWIM (accelerometer), POWER and CLOCK (Step 2 current), NVMC (Step 4).
   Start with the chapter "Peripheral interface" - it explains TASKS/EVENTS/SHORTS for all of them.
 - **Zephyr docs, Bluetooth section**: "Bluetooth Stack Architecture" and the GATT API.
 - **Bluetooth SIG: "The Bluetooth Low Energy Primer"** (free PDF): a longer, deeper overview.
