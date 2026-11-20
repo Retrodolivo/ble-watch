@@ -1,0 +1,13 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component Pad_2mm:
+    """2 x 2 mm bare copper pad (pogo contact / battery tab)"""
+    trait is_atomic_part<manufacturer="none", partnumber="PAD-2x2", footprint="TestPoint_Pad_2.0x2.0mm.kicad_mod", symbol="Pad_2mm.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="none", manufacturer="none", partno="PAD-2x2">
+    trait has_designator_prefix<prefix="TP">
+
+    signal PAD ~ pin 1

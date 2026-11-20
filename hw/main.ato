@@ -1,0 +1,57 @@
+"""BLE binary watch - top level.
+
+Blocks: PowerSupply (pads, nPM1100, LiPo), McuCore (nRF52840 + RF + SWD),
+Accelerometer (LIS2DW12), BinaryDisplay (11 yellow LEDs).
+
+GPIO map (all low-frequency signals, kept on the left/top edges away from the RF corner):
+  LED hours   16,8,4,2,1      P0.02 P0.03 P0.28 P0.29 P0.30
+  LED minutes 32,16,8,4,2,1   P0.31 P0.04 P0.05 P0.06 P0.07 P0.08
+  I2C SCL / SDA               P0.26 / P0.27
+  Accel INT1 / INT2           P0.11 / P0.12
+  Charger CHG / ERR (in, pull-up)  P1.08 / P1.09
+  Ship mode (out)             P0.13
+"""
+
+import ElectricPower
+
+from "power.ato" import PowerSupply
+from "mcu.ato" import McuCore
+from "accel.ato" import Accelerometer
+from "display.ato" import BinaryDisplay
+
+
+module Watch:
+    power = new PowerSupply
+    core = new McuCore
+    accel = new Accelerometer
+    face = new BinaryDisplay
+
+    # ---- power distribution ----
+    power.rail_3v0 ~ core.power
+    power.rail_3v0 ~ accel.power
+    face.gnd ~ power.rail_3v0.lv
+    assert power.rail_3v0.voltage within 2.9V to 3.1V
+
+    # ---- display ----
+    face.hour[0] ~ core.soc.P0_02
+    face.hour[1] ~ core.soc.P0_03
+    face.hour[2] ~ core.soc.P0_28
+    face.hour[3] ~ core.soc.P0_29
+    face.hour[4] ~ core.soc.P0_30
+    face.minute[0] ~ core.soc.P0_31
+    face.minute[1] ~ core.soc.P0_04
+    face.minute[2] ~ core.soc.P0_05
+    face.minute[3] ~ core.soc.P0_06
+    face.minute[4] ~ core.soc.P0_07
+    face.minute[5] ~ core.soc.P0_08
+
+    # ---- accelerometer ----
+    accel.scl ~ core.soc.P0_26
+    accel.sda ~ core.soc.P0_27
+    accel.int1 ~ core.soc.P0_11
+    accel.int2 ~ core.soc.P0_12
+
+    # ---- charger status + ship mode ----
+    power.chg_n ~ core.soc.P1_08
+    power.err_n ~ core.soc.P1_09
+    power.ship_mode ~ core.soc.P0_13

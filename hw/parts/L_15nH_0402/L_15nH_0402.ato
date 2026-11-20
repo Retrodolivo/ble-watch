@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component L_15nH_0402:
+    """15 nH 0402 (nRF52840 DC/DC)"""
+    trait is_atomic_part<manufacturer="Murata", partnumber="LQG15HS15NJ02D", footprint="L_0402_1005Metric.kicad_mod", symbol="L_15nH_0402.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C86059", manufacturer="Murata", partno="LQG15HS15NJ02D">
+    trait has_designator_prefix<prefix="L">
+    trait can_bridge_by_name<input_name="p1", output_name="p2">
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

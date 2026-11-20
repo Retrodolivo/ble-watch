@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component C_1uF_25V_0603:
+    """1 uF 25 V X5R 0603 (VBUS input)"""
+    trait is_atomic_part<manufacturer="Murata", partnumber="GRM188R61E105KA12D", footprint="C_0603_1608Metric.kicad_mod", symbol="C_1uF_25V_0603.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C77046", manufacturer="Murata", partno="GRM188R61E105KA12D">
+    trait has_designator_prefix<prefix="C">
+    trait can_bridge_by_name<input_name="p1", output_name="p2">
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

@@ -1,0 +1,86 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component nRF52840_QIAA:
+    """nRF52840 BLE SoC, aQFN73 7x7 mm"""
+    trait is_atomic_part<manufacturer="Nordic Semiconductor", partnumber="NRF52840-QIAA-R", footprint="Nordic_AQFN-73-1EP_7x7mm_P0.5mm.kicad_mod", symbol="nRF52840_QIAA.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C190794", manufacturer="Nordic Semiconductor", partno="NRF52840-QIAA-R">
+    trait has_designator_prefix<prefix="U">
+
+    signal P0_29 ~ pin A10
+    signal P0_02 ~ pin A12
+    signal P1_15 ~ pin A14
+    signal P1_13 ~ pin A16
+    signal DEC2 ~ pin A18
+    signal P1_10 ~ pin A20
+    signal VDD ~ pin A22
+    signal XC2 ~ pin A23
+    signal P0_31 ~ pin A8
+    signal SWDCLK ~ pin AA24
+    signal DCCH ~ pin AB2
+    signal P0_16 ~ pin AC11
+    signal NRESET ~ pin AC13
+    signal P0_19 ~ pin AC15
+    signal P0_21 ~ pin AC17
+    signal P0_23 ~ pin AC19
+    signal P0_25 ~ pin AC21
+    signal SWDIO ~ pin AC24
+    signal DECUSB ~ pin AC5
+    signal P0_14 ~ pin AC9
+    signal P0_15 ~ pin AD10
+    signal P0_17 ~ pin AD12
+    VDD ~ pin AD14
+    signal P0_20 ~ pin AD16
+    signal P0_22 ~ pin AD18
+    signal VBUS ~ pin AD2
+    signal P0_24 ~ pin AD20
+    signal P1_00 ~ pin AD22
+    VDD ~ pin AD23
+    signal DN ~ pin AD4
+    signal DP ~ pin AD6
+    signal P0_13 ~ pin AD8
+    VDD ~ pin B1
+    signal P0_28 ~ pin B11
+    signal P0_03 ~ pin B13
+    signal P1_14 ~ pin B15
+    signal P1_12 ~ pin B17
+    signal P1_11 ~ pin B19
+    signal XC1 ~ pin B24
+    signal DCC ~ pin B3
+    signal DEC4 ~ pin B5
+    signal VSS ~ pin B7
+    signal P0_30 ~ pin B9
+    signal DEC1 ~ pin C1
+    signal P0_00 ~ pin D2
+    signal DEC3 ~ pin D23
+    signal DEC6 ~ pin E24
+    VSS ~ pin EP
+    signal P0_01 ~ pin F2
+    signal VSS_PA ~ pin F23
+    signal P0_26 ~ pin G1
+    signal P0_27 ~ pin H2
+    signal ANT ~ pin H23
+    signal P0_04 ~ pin J1
+    signal P0_10 ~ pin J24
+    signal P0_05 ~ pin K2
+    signal P0_06 ~ pin L1
+    signal P0_09 ~ pin L24
+    signal P0_07 ~ pin M2
+    signal P0_08 ~ pin N1
+    signal DEC5 ~ pin N24
+    signal P1_08 ~ pin P2
+    signal P1_07 ~ pin P23
+    signal P1_09 ~ pin R1
+    signal P1_06 ~ pin R24
+    signal P0_11 ~ pin T2
+    signal P1_05 ~ pin T23
+    signal P0_12 ~ pin U1
+    signal P1_04 ~ pin U24
+    signal P1_03 ~ pin V23
+    VDD ~ pin W1
+    signal P1_02 ~ pin W24
+    signal VDDH ~ pin Y2
+    signal P1_01 ~ pin Y23

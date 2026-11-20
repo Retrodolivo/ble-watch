@@ -1,0 +1,10 @@
+requires-atopile: "^0.15.8"
+
+paths:
+  src: ./
+  layout: ./layouts
+
+builds:
+  default:
+    entry: main.ato:Watch
+    exclude_checks: ["PCB.requires_drc_check"]

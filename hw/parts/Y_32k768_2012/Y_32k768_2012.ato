@@ -1,0 +1,14 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component Y_32k768_2012:
+    """32.768 kHz crystal, 2012, CL = 9 pF"""
+    trait is_atomic_part<manufacturer="Abracon", partnumber="ABS06-32.768KHZ-9-T", footprint="Crystal_SMD_2012-2Pin_2.0x1.2mm.kicad_mod", symbol="Y_32k768_2012.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C1985410", manufacturer="Abracon", partno="ABS06-32.768KHZ-9-T">
+    trait has_designator_prefix<prefix="Y">
+
+    signal X1 ~ pin 1
+    signal X2 ~ pin 2

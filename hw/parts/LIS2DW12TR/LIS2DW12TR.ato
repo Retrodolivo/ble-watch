@@ -1,0 +1,24 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component LIS2DW12TR:
+    """3-axis accelerometer, LGA-12 2x2x0.7 mm"""
+    trait is_atomic_part<manufacturer="STMicroelectronics", partnumber="LIS2DW12TR", footprint="LGA-12_2x2mm_P0.5mm.kicad_mod", symbol="LIS2DW12TR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C189624", manufacturer="STMicroelectronics", partno="LIS2DW12TR">
+    trait has_designator_prefix<prefix="U">
+
+    signal SCL ~ pin 1
+    signal CS ~ pin 2
+    signal SDO_SA0 ~ pin 3
+    signal SDA ~ pin 4
+    signal NC ~ pin 5
+    signal GND ~ pin 6
+    signal RES ~ pin 7
+    GND ~ pin 8
+    signal VDD ~ pin 9
+    signal VDD_IO ~ pin 10
+    signal INT2 ~ pin 11
+    signal INT1 ~ pin 12

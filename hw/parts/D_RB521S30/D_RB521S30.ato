@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component D_RB521S30:
+    """30 V 200 mA Schottky, SOD-523. Pad 1 = cathode."""
+    trait is_atomic_part<manufacturer="onsemi", partnumber="RB521S30T1G", footprint="D_SOD-523.kicad_mod", symbol="D_RB521S30.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C145179", manufacturer="onsemi", partno="RB521S30T1G">
+    trait has_designator_prefix<prefix="D">
+    trait can_bridge_by_name<input_name="A", output_name="K">
+
+    signal K ~ pin 1
+    signal A ~ pin 2

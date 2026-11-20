@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component LED_Yellow_0603:
+    """Yellow LED 0603. Pad 1 = cathode."""
+    trait is_atomic_part<manufacturer="Lite-On", partnumber="LTST-C190KSKT", footprint="LED_0603_1608Metric.kicad_mod", symbol="LED_Yellow_0603.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C125095", manufacturer="Lite-On", partno="LTST-C190KSKT">
+    trait has_designator_prefix<prefix="D">
+    trait can_bridge_by_name<input_name="A", output_name="K">
+
+    signal K ~ pin 1
+    signal A ~ pin 2

@@ -1,0 +1,37 @@
+#pragma experiment("BRIDGE_CONNECT")
+"""Binary LED face: 5 hour LEDs (16..1) on top, 6 minute LEDs (32..1) below.
+
+Each LED: GPIO --[1k]--> LED --> GND. Active high, ~1 mA at 3.0 V
+(3.0 V - ~1.9 V Vf) / 1 kOhm = ~1.1 mA.
+"""
+
+import Electrical
+
+from "parts/LED_Yellow_0603/LED_Yellow_0603.ato" import LED_Yellow_0603
+from "parts/R_1k_0402/R_1k_0402.ato" import R_1k_0402
+
+
+module BinaryDisplay:
+    gnd = new Electrical
+    hour = new Electrical[5]
+    """hour[0] = 16 ... hour[4] = 1"""
+    minute = new Electrical[6]
+    """minute[0] = 32 ... minute[5] = 1"""
+
+    led_h = new LED_Yellow_0603[5]
+    r_h = new R_1k_0402[5]
+    led_m = new LED_Yellow_0603[6]
+    r_m = new R_1k_0402[6]
+
+    hour[0] ~> r_h[0] ~> led_h[0] ~> gnd
+    hour[1] ~> r_h[1] ~> led_h[1] ~> gnd
+    hour[2] ~> r_h[2] ~> led_h[2] ~> gnd
+    hour[3] ~> r_h[3] ~> led_h[3] ~> gnd
+    hour[4] ~> r_h[4] ~> led_h[4] ~> gnd
+
+    minute[0] ~> r_m[0] ~> led_m[0] ~> gnd
+    minute[1] ~> r_m[1] ~> led_m[1] ~> gnd
+    minute[2] ~> r_m[2] ~> led_m[2] ~> gnd
+    minute[3] ~> r_m[3] ~> led_m[3] ~> gnd
+    minute[4] ~> r_m[4] ~> led_m[4] ~> gnd
+    minute[5] ~> r_m[5] ~> led_m[5] ~> gnd

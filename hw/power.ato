@@ -1,0 +1,112 @@
+#pragma experiment("BRIDGE_CONNECT")
+"""Power path: pogo charge pads -> protection -> nPM1100 charger/buck -> 3.0 V rail.
+
+    5 V pad --+--[Schottky]--> VBUS (nPM1100) --> charges LiPo on VBAT
+              |                                   VSYS --> buck --> VOUT 3.0 V
+             TVS
+              |
+    GND pad --+----------------------------------- GND
+
+Settings (hard-wired, from the nPM1100 PS):
+  VOUTBSET1 = VOUTBSET0 = high (tied to VSYS)  -> buck output 3.0 V
+  VTERMSET  = high (VSYS)                      -> charge to 4.2 V
+  ICHG      = 4.7 kOhm to AVSS                 -> 100 mA charge (0.66 C for 150 mAh)
+  ISET      = VSYS, D- = AVSS, D+ = NC         -> fixed 500 mA input limit (no USB detection)
+  MODE      = AVSS                             -> auto hysteretic/PWM (best light-load efficiency)
+  NTC       = 10 kOhm to AVSS                  -> battery has no thermistor
+"""
+
+import ElectricPower
+import Electrical
+
+from "parts/nPM1100_QDAA/nPM1100_QDAA.ato" import nPM1100_QDAA
+from "parts/Pad_2mm/Pad_2mm.ato" import Pad_2mm
+from "parts/D_RB521S30/D_RB521S30.ato" import D_RB521S30
+from "parts/D_TVS_TPD1E10B06/D_TVS_TPD1E10B06.ato" import D_TVS_TPD1E10B06
+from "parts/L_2u2H_DFE201610/L_2u2H_DFE201610.ato" import L_2u2H_DFE201610
+from "parts/C_1uF_25V_0603/C_1uF_25V_0603.ato" import C_1uF_25V_0603
+from "parts/C_4u7_0603/C_4u7_0603.ato" import C_4u7_0603
+from "parts/C_10uF_0603/C_10uF_0603.ato" import C_10uF_0603
+from "parts/C_100nF_0402/C_100nF_0402.ato" import C_100nF_0402
+from "parts/R_4k7_0402/R_4k7_0402.ato" import R_4k7_0402
+from "parts/R_10k_0402/R_10k_0402.ato" import R_10k_0402
+
+
+module PowerSupply:
+    """Charge input, protection, LiPo charger and 3.0 V buck regulator."""
+
+    # ---- outward-facing interfaces ----
+    rail_3v0 = new ElectricPower
+    """Regulated 3.0 V system rail (nPM1100 buck output)."""
+    battery = new ElectricPower
+    """LiPo cell (402025, with its own PCM), soldered to pads."""
+    chg_n = new Electrical
+    """Open drain, low while charging. Needs a pull-up (use the MCU's internal one)."""
+    err_n = new Electrical
+    """Open drain, low on charge error. Needs a pull-up (use the MCU's internal one)."""
+    ship_mode = new Electrical
+    """Drive high for >200 ms (charger unplugged) to enter ship mode. Internal 500k pull-down."""
+
+    pmic = new nPM1100_QDAA
+
+    # ---- charge pads (flat side of the magnetic pogo connector) ----
+    pad_5v = new Pad_2mm
+    pad_gnd = new Pad_2mm
+    vbus_protected = new Electrical
+    tvs = new D_TVS_TPD1E10B06
+    reverse_block = new D_RB521S30
+
+    pad_5v.PAD ~ tvs.IO
+    tvs.GND ~ pad_gnd.PAD
+    pad_5v.PAD ~> reverse_block ~> vbus_protected
+    vbus_protected ~ pmic.VBUS
+
+    c_vbus = new C_1uF_25V_0603
+    vbus_protected ~> c_vbus ~> pmic.AVSS
+
+    # ---- battery pads ----
+    pad_bat_pos = new Pad_2mm
+    pad_bat_neg = new Pad_2mm
+    battery.hv ~ pad_bat_pos.PAD
+    battery.lv ~ pad_bat_neg.PAD
+    battery.hv ~ pmic.VBAT
+    c_vbat = new C_4u7_0603
+    battery.hv ~> c_vbat ~> pmic.AVSS
+
+    # ---- grounds: one ground net for the whole watch ----
+    pmic.AVSS ~ pmic.PVSS
+    pmic.AVSS ~ pad_gnd.PAD
+    pmic.AVSS ~ battery.lv
+    pmic.AVSS ~ rail_3v0.lv
+
+    # ---- system node + buck ----
+    c_vsys = new C_10uF_0603
+    pmic.VSYS ~> c_vsys ~> pmic.AVSS
+    c_dec = new C_100nF_0402
+    pmic.DEC ~> c_dec ~> pmic.AVSS
+
+    l_buck = new L_2u2H_DFE201610
+    pmic.SW ~> l_buck ~> pmic.VOUTB
+    rail_3v0.hv ~ pmic.VOUTB
+    c_vout = new C_10uF_0603
+    pmic.VOUTB ~> c_vout ~> pmic.AVSS
+
+    # ---- configuration straps ----
+    pmic.VOUTBSET1 ~ pmic.VSYS
+    pmic.VOUTBSET0 ~ pmic.VSYS
+    pmic.VTERMSET ~ pmic.VSYS
+    pmic.ISET ~ pmic.VSYS
+    pmic.MODE ~ pmic.AVSS
+    pmic.DN ~ pmic.AVSS
+    # pmic.DP left unconnected (no USB detection)
+
+    r_ichg = new R_4k7_0402
+    pmic.ICHG ~> r_ichg ~> pmic.AVSS
+    r_ntc = new R_10k_0402
+    pmic.NTC ~> r_ntc ~> pmic.AVSS
+
+    # ---- status + ship mode ----
+    chg_n ~ pmic.CHG
+    err_n ~ pmic.ERR
+    ship_mode ~ pmic.SHPACT
+    # SHPHLD: OPEN QUESTION. Left unconnected for now (see README).

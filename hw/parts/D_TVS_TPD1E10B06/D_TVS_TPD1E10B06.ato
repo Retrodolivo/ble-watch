@@ -1,0 +1,14 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component D_TVS_TPD1E10B06:
+    """6 V bidirectional ESD/TVS, 0402 (X1SON). VERIFY footprint vs DPY land pattern."""
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="TPD1E10B06DPYR", footprint="D_0402_1005Metric.kicad_mod", symbol="D_TVS_TPD1E10B06.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C48260", manufacturer="Texas Instruments", partno="TPD1E10B06DPYR">
+    trait has_designator_prefix<prefix="D">
+
+    signal IO ~ pin 1
+    signal GND ~ pin 2

@@ -1,0 +1,5 @@
+build/
+layouts/**/backups/
+*.kicad_prl
+tools/__pycache__
+.ato/

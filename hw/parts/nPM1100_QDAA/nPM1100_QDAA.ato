@@ -1,0 +1,37 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component nPM1100_QDAA:
+    """PMIC: Li-ion charger + 1.8-3.0 V buck, QFN24 4x4. Pinout from LCSC/Flux data; VERIFY with nPM1100 PS (QFN) and EP size."""
+    trait is_atomic_part<manufacturer="Nordic Semiconductor", partnumber="NPM1100-QDAA-R7", footprint="QFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm.kicad_mod", symbol="nPM1100_QDAA.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C7249859", manufacturer="Nordic Semiconductor", partno="NPM1100-QDAA-R7">
+    trait has_designator_prefix<prefix="U">
+
+    signal VOUTB ~ pin 1
+    signal VOUTBSET1 ~ pin 2
+    signal VOUTBSET0 ~ pin 3
+    signal AVSS ~ pin 4
+    signal ISET ~ pin 5
+    signal SHPACT ~ pin 6
+    signal MODE ~ pin 7
+    signal CHG ~ pin 8
+    signal VTERMSET ~ pin 9
+    signal ERR ~ pin 10
+    signal SHPHLD ~ pin 11
+    signal ICHG ~ pin 12
+    signal NC13 ~ pin 13
+    signal NTC ~ pin 14
+    signal VBAT ~ pin 15
+    signal VSYS ~ pin 16
+    signal VBUS ~ pin 17
+    signal NC18 ~ pin 18
+    signal DN ~ pin 19
+    signal DP ~ pin 20
+    signal DEC ~ pin 21
+    signal SW ~ pin 22
+    signal PVSS ~ pin 23
+    signal NC24 ~ pin 24
+    AVSS ~ pin 25

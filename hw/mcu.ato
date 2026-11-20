@@ -1,0 +1,120 @@
+#pragma experiment("BRIDGE_CONNECT")
+"""nRF52840 core: decoupling, DC/DC, crystals, RF match + chip antenna, SWD pads.
+
+Supply: 3.0 V from the nPM1100 into VDD (nRF52840 "normal voltage" mode, VDDH tied to VDD).
+Values follow Nordic's nRF52840 aQFN73 reference circuit as remembered -
+VERIFY every value against the nRF52840 PS "Reference circuitry" (Config 2) before ordering.
+"""
+
+import ElectricPower
+import Electrical
+
+from "parts/nRF52840_QIAA/nRF52840_QIAA.ato" import nRF52840_QIAA
+from "parts/Y_32MHz_2016/Y_32MHz_2016.ato" import Y_32MHz_2016
+from "parts/Y_32k768_2012/Y_32k768_2012.ato" import Y_32k768_2012
+from "parts/ANT_2450AT18A100/ANT_2450AT18A100.ato" import ANT_2450AT18A100
+from "parts/TC2030_NL/TC2030_NL.ato" import TC2030_NL
+from "parts/C_100nF_0402/C_100nF_0402.ato" import C_100nF_0402
+from "parts/C_1uF_0402/C_1uF_0402.ato" import C_1uF_0402
+from "parts/C_4u7_0603/C_4u7_0603.ato" import C_4u7_0603
+from "parts/C_12pF_0402/C_12pF_0402.ato" import C_12pF_0402
+from "parts/C_100pF_0402/C_100pF_0402.ato" import C_100pF_0402
+from "parts/C_0p8pF_0402/C_0p8pF_0402.ato" import C_0p8pF_0402
+from "parts/L_10uH_0603/L_10uH_0603.ato" import L_10uH_0603
+from "parts/L_15nH_0402/L_15nH_0402.ato" import L_15nH_0402
+from "parts/L_3n9H_0402/L_3n9H_0402.ato" import L_3n9H_0402
+from "parts/R_0R_0402/R_0R_0402.ato" import R_0R_0402
+
+
+module McuCore:
+    """nRF52840 with everything it needs to boot and radiate."""
+
+    power = new ElectricPower
+    """3.0 V in."""
+
+    soc = new nRF52840_QIAA
+    gnd = new Electrical
+    gnd ~ power.lv
+
+    # ---- supply pins ----
+    power.hv ~ soc.VDD
+    power.hv ~ soc.VDDH          # normal voltage mode: VDDH = VDD
+    gnd ~ soc.VSS
+    gnd ~ soc.VSS_PA
+    gnd ~ soc.VBUS               # USB not used: VBUS to ground
+    # DCCH: not connected (REG0 unused in normal voltage mode)
+    # DEC2, DEC5: not connected (per current build codes - VERIFY)
+
+    c_vdd_bulk = new C_4u7_0603
+    power.hv ~> c_vdd_bulk ~> gnd
+    c_vdd = new C_100nF_0402[3]
+    power.hv ~> c_vdd[0] ~> gnd
+    power.hv ~> c_vdd[1] ~> gnd
+    power.hv ~> c_vdd[2] ~> gnd
+    c_vdd_rf = new C_100pF_0402
+    power.hv ~> c_vdd_rf ~> gnd
+
+    c_dec1 = new C_100nF_0402
+    soc.DEC1 ~> c_dec1 ~> gnd
+    c_dec3 = new C_100pF_0402
+    soc.DEC3 ~> c_dec3 ~> gnd
+    c_dec4 = new C_1uF_0402
+    soc.DEC4 ~> c_dec4 ~> gnd
+    c_dec6 = new C_100nF_0402
+    soc.DEC6 ~> c_dec6 ~> gnd
+    c_decusb = new C_4u7_0603
+    soc.DECUSB ~> c_decusb ~> gnd
+
+    # ---- REG1 DC/DC (saves ~40% radio current) ----
+    l_dcdc = new L_10uH_0603
+    l_dcdc_hf = new L_15nH_0402
+    soc.DCC ~> l_dcdc ~> l_dcdc_hf ~> soc.DEC4
+
+    # ---- 32 MHz crystal (HFXO, required for BLE) ----
+    xtal_hf = new Y_32MHz_2016
+    soc.XC1 ~ xtal_hf.X1
+    soc.XC2 ~ xtal_hf.X2
+    xtal_hf.GND ~ gnd
+    c_xc1 = new C_12pF_0402
+    c_xc2 = new C_12pF_0402
+    soc.XC1 ~> c_xc1 ~> gnd
+    soc.XC2 ~> c_xc2 ~> gnd
+
+    # ---- 32.768 kHz crystal (LFXO, low-power timekeeping) ----
+    xtal_lf = new Y_32k768_2012
+    soc.P0_00 ~ xtal_lf.X1       # XL1
+    soc.P0_01 ~ xtal_lf.X2       # XL2
+    c_xl1 = new C_12pF_0402
+    c_xl2 = new C_12pF_0402
+    soc.P0_00 ~> c_xl1 ~> gnd
+    soc.P0_01 ~> c_xl2 ~> gnd
+
+    # ---- RF: Nordic harmonic filter, then a pi tuning network, then antenna ----
+    #   ANT --[3.9 nH]--+--[tune series 0R]--+-- antenna feed
+    #                 [0.8 pF]   [tune shunt DNP]   [tune shunt DNP]
+    l_rf = new L_3n9H_0402
+    c_rf = new C_0p8pF_0402
+    rf_mid = new Electrical
+    soc.ANT ~> l_rf ~> rf_mid
+    rf_mid ~> c_rf ~> gnd
+
+    tune_series = new R_0R_0402
+    """Antenna tuning: start as 0 R, replace after measuring with a VNA."""
+    tune_shunt_a = new C_0p8pF_0402
+    """Antenna tuning: Do Not Place initially."""
+    tune_shunt_b = new C_0p8pF_0402
+    """Antenna tuning: Do Not Place initially."""
+    antenna = new ANT_2450AT18A100
+    rf_mid ~> tune_series ~> antenna.FEED
+    rf_mid ~> tune_shunt_a ~> gnd
+    antenna.FEED ~> tune_shunt_b ~> gnd
+    # antenna.NC is a mechanical pad: leave unconnected
+
+    # ---- SWD programming pads (Tag-Connect TC2030-NL) ----
+    swd = new TC2030_NL
+    swd.VTREF ~ power.hv
+    swd.GND ~ gnd
+    swd.SWDIO ~ soc.SWDIO
+    swd.SWDCLK ~ soc.SWDCLK
+    swd.NRESET ~ soc.NRESET      # P0.18, configured as pin reset
+    # swd.SWO: not connected (SWO = P1.00 TRACEDATA0 if ever needed)

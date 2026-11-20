@@ -1,0 +1,46 @@
+#pragma experiment("BRIDGE_CONNECT")
+"""LIS2DW12 accelerometer on I2C (address 0x18, SA0 low). Wakes the watch on double-tap."""
+
+import ElectricPower
+import Electrical
+
+from "parts/LIS2DW12TR/LIS2DW12TR.ato" import LIS2DW12TR
+from "parts/C_100nF_0402/C_100nF_0402.ato" import C_100nF_0402
+from "parts/C_1uF_0402/C_1uF_0402.ato" import C_1uF_0402
+from "parts/R_4k7_0402/R_4k7_0402.ato" import R_4k7_0402
+
+
+module Accelerometer:
+    power = new ElectricPower
+    scl = new Electrical
+    sda = new Electrical
+    int1 = new Electrical
+    """Double-tap / wake-up interrupt -> MCU (wakes from System ON sleep)."""
+    int2 = new Electrical
+    """Spare interrupt (data-ready, FIFO) -> MCU."""
+
+    imu = new LIS2DW12TR
+    power.hv ~ imu.VDD
+    power.hv ~ imu.VDD_IO
+    power.lv ~ imu.GND
+    power.lv ~ imu.RES           # datasheet: connect RES to GND
+    power.hv ~ imu.CS            # CS high = I2C mode
+    power.lv ~ imu.SDO_SA0       # SA0 low = address 0x18
+
+    c_vdd = new C_100nF_0402
+    c_vddio = new C_100nF_0402
+    c_bulk = new C_1uF_0402
+    imu.VDD ~> c_vdd ~> power.lv
+    imu.VDD_IO ~> c_vddio ~> power.lv
+    imu.VDD ~> c_bulk ~> power.lv
+
+    scl ~ imu.SCL
+    sda ~ imu.SDA
+    int1 ~ imu.INT1
+    int2 ~ imu.INT2
+
+    # I2C pull-ups (only bus devices: MCU + accel)
+    r_scl = new R_4k7_0402
+    r_sda = new R_4k7_0402
+    imu.SCL ~> r_scl ~> power.hv
+    imu.SDA ~> r_sda ~> power.hv

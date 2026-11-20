@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component Y_32MHz_2016:
+    """32 MHz crystal, 2016, CL = 8 pF, +/-10 ppm (Nordic-qualified)"""
+    trait is_atomic_part<manufacturer="NDK", partnumber="NX2016SA-32M-EXS00A-CS06465", footprint="Crystal_SMD_2016-4Pin_2.0x1.6mm.kicad_mod", symbol="Y_32MHz_2016.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C1986260", manufacturer="NDK", partno="NX2016SA-32M-EXS00A-CS06465">
+    trait has_designator_prefix<prefix="Y">
+
+    signal X1 ~ pin 1
+    signal GND ~ pin 2
+    signal X2 ~ pin 3
+    GND ~ pin 4

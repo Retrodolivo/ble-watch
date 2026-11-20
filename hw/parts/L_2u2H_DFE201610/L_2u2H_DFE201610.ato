@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component L_2u2H_DFE201610:
+    """2.2 uH 2016 power inductor (nPM1100 buck)"""
+    trait is_atomic_part<manufacturer="Murata", partnumber="DFE201610E-2R2M=P2", footprint="L_Murata_DFE201610P.kicad_mod", symbol="L_2u2H_DFE201610.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C337891", manufacturer="Murata", partno="DFE201610E-2R2M=P2">
+    trait has_designator_prefix<prefix="L">
+    trait can_bridge_by_name<input_name="p1", output_name="p2">
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

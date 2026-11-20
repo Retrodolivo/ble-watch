@@ -1,0 +1,18 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component TC2030_NL:
+    """Tag-Connect footprint (no part placed in production). ARM SWD pinout."""
+    trait is_atomic_part<manufacturer="Tag-Connect", partnumber="TC2030-IDC-NL", footprint="Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical.kicad_mod", symbol="TC2030_NL.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="none", manufacturer="Tag-Connect", partno="TC2030-IDC-NL">
+    trait has_designator_prefix<prefix="J">
+
+    signal VTREF ~ pin 1
+    signal SWDIO ~ pin 2
+    signal NRESET ~ pin 3
+    signal SWDCLK ~ pin 4
+    signal GND ~ pin 5
+    signal SWO ~ pin 6

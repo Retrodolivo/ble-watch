@@ -1,0 +1,14 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+
+
+component ANT_2450AT18A100:
+    """2.45 GHz chip antenna. Pad 1 = feed, pad 2 = mechanical (no connect)."""
+    trait is_atomic_part<manufacturer="Johanson Technology", partnumber="2450AT18A100E", footprint="Johanson_2450AT18x100.kicad_mod", symbol="ANT_2450AT18A100.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C89334", manufacturer="Johanson Technology", partno="2450AT18A100E">
+    trait has_designator_prefix<prefix="AE">
+
+    signal FEED ~ pin 1
+    signal NC ~ pin 2

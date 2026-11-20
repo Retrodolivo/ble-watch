@@ -1,0 +1,15 @@
+#pragma experiment("TRAITS")
+import is_atomic_part
+import has_designator_prefix
+import has_part_picked
+import can_bridge_by_name
+
+component R_1k_0402:
+    """1 kOhm 1% 0402 (LED current limit)"""
+    trait is_atomic_part<manufacturer="YAGEO", partnumber="RC0402FR-071KL", footprint="R_0402_1005Metric.kicad_mod", symbol="R_1k_0402.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C106235", manufacturer="YAGEO", partno="RC0402FR-071KL">
+    trait has_designator_prefix<prefix="R">
+    trait can_bridge_by_name<input_name="p1", output_name="p2">
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
