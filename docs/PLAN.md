@@ -4,7 +4,7 @@ Each step has a **Build** part (what we make) and a **Learn** part (what you'll 
 Steps 1–4 run on the nRF52840 DK. Step 5 moves the firmware to the real watch.
 Steps 1b and 4b add CI/CD (build and release automation on GitHub) and don't change the firmware itself.
 
-## Step 1: Foundation, LED face and accelerometer  ← current
+## Step 1: Foundation, LED face and accelerometer  ✓ done (2026-11-21)
 - Build: repo skeleton, toolchain check, logging, then the 11 binary LEDs on a breadboard (a counter or test pattern), each driven by a PWM channel (`pwm-leds`) at one fixed brightness (`CONFIG_FACE_BRIGHTNESS`, no runtime setting), then the LIS2DW12 breakout with a double-tap interrupt that lights the LEDs.
 - Learn: NCS, `west` and the build system, devicetree and Kconfig, GPIO, PWM and the LED API, pinctrl, flashing and logging, I²C, sensor drivers and interrupts (triggers).
 - Done when: a double-tap on the accelerometer lights a test pattern on the LEDs, and the pinout is recorded in `docs/hardware.md`.
@@ -15,7 +15,7 @@ Steps 1b and 4b add CI/CD (build and release automation on GitHub) and don't cha
 - Learn: GitHub Actions (workflows, jobs, steps, runners, artifacts), installing a runner as a service, reproducible builds with a pinned toolchain, caching, why self-hosted runners on public repos are risky.
 - Done when: a push to GitHub starts a build on the VPS, the commit gets a green check (or a red cross when the build breaks), and the firmware can be downloaded from the run page.
 
-## Step 2: The clock
+## Step 2: The clock  ← current
 - Build: timekeeping with the RTC, the time shown in binary (24-hour) for a few seconds after a double-tap, then the LEDs turn off and the chip goes back to sleep.
 - Learn: nRF52840 clocks and RTC, Zephyr timers, work queues and threads, sleep and power management, measuring current (e.g. with a Power Profiler Kit).
 - Done when: it keeps time for 24 h and the idle current has been measured.

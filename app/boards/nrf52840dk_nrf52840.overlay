@@ -16,6 +16,8 @@
  */
 
 #include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/gpio/arduino-header-r3.h>
+#include <zephyr/dt-bindings/sensor/lis2dw12.h>
 
 /*
  * The board uses pwm0 channel 0 for DK LED1 (P0.13), as a "pwm-leds" node.
@@ -131,4 +133,46 @@
 	pinctrl-0 = <&face_pwm2_default>;
 	pinctrl-1 = <&face_pwm2_sleep>;
 	pinctrl-names = "default", "sleep";
+};
+
+/*
+ * LIS2DW12 accelerometer breakout on the Arduino I2C (i2c0: D14 = SDA P0.26,
+ * D15 = SCL P0.27). The board already enables i2c0 with these pins, so we only
+ * add the sensor as a child node. INT1 goes to D2 (P1.03).
+ *
+ * Address: 0x18, because SDO/SA0 is low on our breakout (measured). High = 0x19.
+ *
+ * Double-tap settings from ST's application note AN5038 (example values):
+ * 400 Hz, +-2 g, threshold 12 on every axis (12 * 2 g / 32 = 750 mg),
+ * shock 3, quiet 3, latency 7. At 400 Hz:
+ *   shock   3 -> 3 * 8 / 400  = 60 ms   max length of one tap
+ *   quiet   3 -> 3 * 4 / 400  = 30 ms   no motion right after a tap
+ *   latency 7 -> 7 * 32 / 400 = 560 ms  max time between the two taps
+ * Tap events can only go to INT1.
+ */
+&arduino_i2c {
+	accel: lis2dw12@18 {
+		compatible = "st,lis2dw12";
+		reg = <0x18>;
+		irq-gpios = <&arduino_header ARDUINO_HEADER_R3_D2 GPIO_ACTIVE_HIGH>;
+		int-pin = <1>;
+		range = <2>;
+		odr = <400>;
+		power-mode = <LIS2DW12_DT_HP_MODE>;
+		low-noise;
+		tap-mode = <LIS2DW12_DT_SINGLE_DOUBLE_TAP>;
+		tap-threshold = <12>, <12>, <12>;
+		tap-shock = <3>;
+		tap-quiet = <3>;
+		tap-latency = <7>;
+	};
+};
+
+/*
+ * Power: by default an edge interrupt uses a GPIOTE channel, which keeps a
+ * high-frequency clock running in sleep. The SENSE mechanism wakes the CPU
+ * on a pin level change with almost no current. P1.03 = bit 3 of gpio1.
+ */
+&gpio1 {
+	sense-edge-mask = <(1 << 3)>;
 };

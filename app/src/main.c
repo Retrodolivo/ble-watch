@@ -1,6 +1,7 @@
 /*
- * ble-watch: heartbeat LED, binary LED face test at boot, and a clock that
- * logs HH:MM at each new minute and is set over BLE (Current Time Service).
+ * ble-watch: heartbeat LED, binary LED face test at boot, a clock that logs
+ * HH:MM at each new minute and is set over BLE (Current Time Service), and
+ * a double-tap on the accelerometer that shows the time for a few seconds.
  */
 
 #include <stdio.h>
@@ -10,6 +11,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
 
+#include "accel.h"
 #include "ble.h"
 #include "clock.h"
 #include "face.h"
@@ -18,7 +20,7 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 #define BLINK_PERIOD_MS 500
 #define WALK_STEP_MS    200  /* per LED in the boot test */
-#define SHOW_TIME_MS    5000 /* how long the time stays on at boot */
+#define SHOW_TIME_MS    5000 /* how long the time stays on */
 
 /* "led0" is an alias in the board devicetree (LED1 on the DK). */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
@@ -54,6 +56,28 @@ static void face_test(void)
 	(void)face_show_time(now / 3600, (now / 60) % 60);
 	k_msleep(SHOW_TIME_MS);
 	(void)face_off();
+}
+
+static void face_off_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+	(void)face_off();
+}
+
+K_WORK_DELAYABLE_DEFINE(face_off_work, face_off_handler);
+
+/*
+ * Double-tap: show the time, and turn the LEDs off SHOW_TIME_MS later.
+ * Runs in the system work queue, like face_off_handler(), so the two never
+ * run at the same time. A new double-tap while lit restarts the countdown.
+ */
+static void on_double_tap(void)
+{
+	uint32_t now = clock_now();
+
+	LOG_INF("Face shows %02u:%02u", now / 3600, (now / 60) % 60);
+	(void)face_show_time(now / 3600, (now / 60) % 60);
+	k_work_reschedule(&face_off_work, K_MSEC(SHOW_TIME_MS));
 }
 
 /* Start time = build time ("HH:MM:SS" from the compiler), until BLE can set it. */
@@ -94,6 +118,9 @@ int main(void)
 		face_test();
 	}
 
+	/* If the accelerometer is missing, the rest still runs. */
+	(void)accel_init(on_double_tap);
+
 	/* If BLE fails, the clock still runs from the build time. */
 	(void)ble_init();
 
@@ -108,8 +135,6 @@ int main(void)
 
 		LOG_INF("Time %02u:%02u (uptime %lld s)", now / 3600, (now / 60) % 60,
 			k_uptime_get() / MSEC_PER_SEC);
-		
-		(void)face_show_time(now / 3600, (now / 60) % 60);
 	}
 
 	return 0;

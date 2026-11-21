@@ -41,10 +41,11 @@ Decided 2026-11-08. Two 3D-printed parts: a **clear SLA resin top** (the PCB is 
 ## Development setup
 
 - nRF52840 DK (PCA10056), Zephyr board target `nrf52840dk/nrf52840`
-- LIS2DW12 breakout board on the DK's I²C (Arduino header). The exact board is still to be chosen.
+- LIS2DW12 breakout board on the DK's I²C (Arduino header). Tested 2026-11-21: double-tap works.
+  The breakout ties SDO/SA0 low (address 0x18) and leaves CS unconnected, so CS is wired to VDD by hand.
 - 11 yellow LEDs plus resistors on a breadboard to test the binary display layout
 - NCS v3.4.2
-- Pinout: below (the accelerometer part is still to be chosen)
+- Pinout: below
 
 ## DK pinout (step 1)
 
@@ -65,5 +66,15 @@ Each LED is one PWM channel; set in `app/boards/nrf52840dk_nrf52840.overlay`.
 | M2  | 2  | D12 | P1.14 | pwm1 ch2 |
 | M1  | 1  | D13 | P1.15 | pwm1 ch1 |
 
-Kept free for the accelerometer: D14/D15 (P0.26/P0.27, `arduino_i2c` SDA/SCL) and D2 (P1.03, planned for INT1).
+Accelerometer (LIS2DW12 breakout, node `accel` in the same overlay, tested and working):
+
+| Signal | Arduino | nRF pin | Notes |
+|--------|---------|---------|-------|
+| SDA  | D14 | P0.26 | `arduino_i2c` (i2c0). Pull-ups needed; the DK has none. |
+| SCL  | D15 | P0.27 | |
+| INT1 | D2  | P1.03 | Active high. Uses GPIO SENSE (`sense-edge-mask`), not GPIOTE. |
+| VCC  | VDD | —     | 3.0 V on the DK. |
+| GND  | GND | —     | |
+| SDO/SA0 | —   | —     | Low on the breakout (measured) = I²C address 0x18. High would be 0x19. |
+| CS   | VDD | —     | Wired to VDD by hand: the breakout leaves it open. CS high = I²C mode, low = SPI. |
 DK LED1 (P0.13) stays the GPIO heartbeat.
