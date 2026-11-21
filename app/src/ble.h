@@ -6,6 +6,6 @@
 #define BLE_WATCH_BLE_H_
 
 /* Enable Bluetooth, register CTS and start advertising. */
-int ble_init(void);
+int bleInit(void);
 
 #endif /* BLE_WATCH_BLE_H_ */

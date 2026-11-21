@@ -9,7 +9,7 @@ The pin switches on and off very fast (here 1 kHz). The LED looks steady, and it
 - Any GPIO can be a PWM output. The pin is chosen in a **PSEL** register, not fixed in silicon.
 - It reads duty values from RAM by itself (EasyDMA), so the CPU does nothing while an LED is lit.
 - Zephyr's driver (`zephyr/drivers/pwm/pwm_nrfx.c`, look for `pwm_needed`) **stops the peripheral**
-  when every channel is at 0 % or 100 %. So `face_off()` costs nothing extra in sleep.
+  when every channel is at 0 % or 100 %. So `faceOff()` costs nothing extra in sleep.
 
 ## pinctrl: why the overlay has real pin numbers
 - PWM, I²C, SPI and UART pins go through **pinctrl** nodes: `NRF_PSEL(PWM_OUT0, 1, 8)` = output 0 on P1.08.

@@ -9,6 +9,6 @@
 typedef void (*accel_double_tap_cb_t)(void);
 
 /* Check the sensor is ready and start double-tap detection. */
-int accel_init(accel_double_tap_cb_t cb);
+int accelInit(accel_double_tap_cb_t cb);
 
 #endif /* BLE_WATCH_ACCEL_H_ */

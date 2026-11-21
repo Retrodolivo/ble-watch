@@ -35,8 +35,8 @@ Full value: `EA070B07131E00060001`.
 
 ## Threads and locking
 - GATT write callbacks run in the Bluetooth RX thread, not in main.
-- `clock_set()` and `clock_now()` share two variables, so they use a `k_spinlock`.
-- `clock_set()` gives a semaphore, so the main loop wakes up and logs the new time at once.
+- `clockSet()` and `clockNow()` share two variables, so they use a `k_spinlock`.
+- `clockSet()` gives a semaphore, so the main loop wakes up and logs the new time at once.
 
 ## Spinlock vs mutex vs semaphore
 - **Spinlock**: protects data. Never sleeps. On a single core it just disables interrupts.
@@ -44,7 +44,7 @@ Full value: `EA070B07131E00060001`.
 - **Mutex**: protects data too, but a waiting thread *sleeps*. Use when the protected code is long
   or can block (e.g. an SPI transfer). Not allowed in an ISR. Has priority inheritance.
 - **Semaphore**: a *signal* ("something happened"), not a lock here. Our main loop sleeps on it
-  with a timeout; `clock_set()` gives it to wake the loop early.
+  with a timeout; `clockSet()` gives it to wake the loop early.
 - Why the lock at all: `base_ms` and `base_uptime_ms` are 64-bit, and a 32-bit Cortex-M4 reads
   each in two steps. Without the lock, main could mix old and new values and show a wrong time.
 

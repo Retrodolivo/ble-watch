@@ -17,7 +17,7 @@
 3. The driver's ISR only submits work to the **system work queue** (`CONFIG_LIS2DW12_TRIGGER_GLOBAL_THREAD`).
    I²C can't run in an ISR, so reading the interrupt source happens in that thread.
 4. It calls our handler, set with `sensor_trigger_set()` (`app/src/accel.c`).
-5. `on_double_tap()` in `app/src/main.c` lights the time and schedules `face_off_work`
+5. `onDoubleTap()` in `app/src/main.c` lights the time and schedules `face_off_work`
    (a `k_work_delayable`) 5 s later. A new tap restarts the 5 s.
 
 ## Tap timing (ST AN5038 values, at 400 Hz)

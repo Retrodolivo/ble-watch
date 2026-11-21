@@ -19,7 +19,7 @@ west build -b nrf52840dk/nrf52840 app -p -- -DEXTRA_CONF_FILE=debug.conf
 
 ## Terminal alternative
 `west debug` flashes and opens GDB in the terminal; `west attach` connects without flashing.
-Useful GDB commands: `break cts_time_write`, `continue`, `next`, `step`, `print base_ms`, `bt`, `info threads`.
+Useful GDB commands: `break ctsTimeWrite`, `continue`, `next`, `step`, `print base_ms`, `bt`, `info threads`.
 
 ## BLE and breakpoints
 - The SoftDevice Controller has strict radio timing. If the CPU stops at a breakpoint while
@@ -28,3 +28,15 @@ Useful GDB commands: `break cts_time_write`, `continue`, `next`, `step`, `print 
 - So: after a breakpoint with BLE running, expect to reset the board. To look at values without
   stopping, use logs or watch variables in "attach" mode.
 - The RTC keeps counting while the CPU is halted, so our clock doesn't lose time at a breakpoint.
+
+## Debugging with MCUboot: flash the signed image
+
+- With MCUboot, the app's `zephyr.elf` starts at `0xC000` with 0x200 bytes of **zeros** where
+  the MCUboot image header goes. `west build` adds the header and signature later, in
+  `build/app/zephyr/zephyr.signed.hex`.
+- If the debugger flashes `zephyr.elf`, those zeros overwrite the header. MCUboot (at `0x0`)
+  finds no valid image and stops in `FIH_PANIC` (MCUboot `main.c`, PC around `0x152`).
+  The call stack shows `??` because the debugger only has the app's symbols, not MCUboot's.
+- Fix in `.vscode/launch.json`: keep `executable` = `zephyr.elf` (symbols only), and flash
+  `loadFiles` = MCUboot `zephyr.hex` + app `zephyr.signed.hex`.
+- To find where an unknown PC is: `arm-zephyr-eabi-addr2line -f -e build/mcuboot/zephyr/zephyr.elf 0x152`.

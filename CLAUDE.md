@@ -45,7 +45,9 @@ docs/learn/     one short note per concept learned
 - **Ask before flashing** or touching anything that changes the hardware state, and before adding a dependency.
 - Prefer Zephyr/NCS APIs and existing samples over hand-written drivers. Configure through devicetree and Kconfig, not hard-coded pins. The 11 LEDs are two `pwm-leds` nodes (`hour_leds`, `minute_leds`) in the overlay, driven with the LED API from `app/src/face.c`.
 - **Power matters.** It's a watch on a small battery: the LEDs are off by default, and the CPU sleeps between events. Don't add busy loops or polling.
-- C (C11), Zephyr coding style, `LOG_MODULE_REGISTER` per file, no dynamic allocation unless needed.
+- C (C11), `LOG_MODULE_REGISTER` per file, no dynamic allocation unless needed.
+- Formatting: run `clang-format -i app/src/*.[ch]` (config in `app/src/.clang-format`: 2 spaces, brace on the same line, 120 columns). `app/boards/` and `hw/` are not formatted.
+- Naming: functions in camelCase, public ones prefixed with the module (`faceShowBits`, `clockNow`); `const` variables in UpperCamelCase (`HourLeds`, `Accel`); macros in UPPER_CASE. Zephyr API names, struct fields and devicetree labels stay as they are.
 - Commits: short imperative subject (e.g. "Add LIS2DW12 overlay").
 
 ## Learning mode (important)

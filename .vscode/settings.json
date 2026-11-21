@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/app",
+    "nrf-connect.applications": [
+        "${workspaceFolder}/app"
+    ],
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/app/compile_commands.json"
+}

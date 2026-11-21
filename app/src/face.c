@@ -26,54 +26,48 @@ LOG_MODULE_REGISTER(face, LOG_LEVEL_INF);
 BUILD_ASSERT(HOUR_BITS == 5, "hour_leds needs 5 LEDs (16 8 4 2 1)");
 BUILD_ASSERT(MINUTE_BITS == 6, "minute_leds needs 6 LEDs (32 16 8 4 2 1)");
 
-static const struct device *const hour_leds = DEVICE_DT_GET(HOUR_LEDS_NODE);
-static const struct device *const minute_leds = DEVICE_DT_GET(MINUTE_LEDS_NODE);
+static const struct device *const HourLeds = DEVICE_DT_GET(HOUR_LEDS_NODE);
+static const struct device *const MinuteLeds = DEVICE_DT_GET(MINUTE_LEDS_NODE);
 
 /* Set one row of LEDs from a bit pattern. Keeps going on error. */
-static int show_row(const struct device *leds, unsigned int count, uint8_t bits)
-{
-	int err = 0;
+static int showRow(const struct device *leds, unsigned int count, uint8_t bits) {
+  int err = 0;
 
-	for (unsigned int i = 0; i < count; i++) {
-		uint8_t level = (bits & BIT(i)) ? CONFIG_FACE_BRIGHTNESS : 0;
-		int ret = led_set_brightness(leds, i, level);
+  for (unsigned int i = 0; i < count; i++) {
+    uint8_t level = (bits & BIT(i)) ? CONFIG_FACE_BRIGHTNESS : 0;
+    int ret = led_set_brightness(leds, i, level);
 
-		if (ret < 0) {
-			LOG_ERR("%s LED %u: %d", leds->name, i, ret);
-			err = ret;
-		}
-	}
+    if (ret < 0) {
+      LOG_ERR("%s LED %u: %d", leds->name, i, ret);
+      err = ret;
+    }
+  }
 
-	return err;
+  return err;
 }
 
-int face_show_bits(uint8_t hour_bits, uint8_t minute_bits)
-{
-	int ret_h = show_row(hour_leds, HOUR_BITS, hour_bits);
-	int ret_m = show_row(minute_leds, MINUTE_BITS, minute_bits);
+int faceShowBits(uint8_t hour_bits, uint8_t minute_bits) {
+  int ret_h = showRow(HourLeds, HOUR_BITS, hour_bits);
+  int ret_m = showRow(MinuteLeds, MINUTE_BITS, minute_bits);
 
-	return ret_h < 0 ? ret_h : ret_m;
+  return ret_h < 0 ? ret_h : ret_m;
 }
 
-int face_show_time(uint8_t hours, uint8_t minutes)
-{
-	return face_show_bits(hours % 24, minutes % 60);
+int faceShowTime(uint8_t hours, uint8_t minutes) {
+  return faceShowBits(hours % 24, minutes % 60);
 }
 
-int face_off(void)
-{
-	return face_show_bits(0, 0);
+int faceOff(void) {
+  return faceShowBits(0, 0);
 }
 
-int face_init(void)
-{
-	if (!device_is_ready(hour_leds) || !device_is_ready(minute_leds)) {
-		LOG_ERR("LED devices not ready");
-		return -ENODEV;
-	}
+int faceInit(void) {
+  if (!device_is_ready(HourLeds) || !device_is_ready(MinuteLeds)) {
+    LOG_ERR("LED devices not ready");
+    return -ENODEV;
+  }
 
-	LOG_INF("Face ready: %u hour + %u minute LEDs, brightness %d %%", HOUR_BITS,
-		MINUTE_BITS, CONFIG_FACE_BRIGHTNESS);
+  LOG_INF("Face ready: %u hour + %u minute LEDs, brightness %d %%", HOUR_BITS, MINUTE_BITS, CONFIG_FACE_BRIGHTNESS);
 
-	return face_off();
+  return faceOff();
 }
