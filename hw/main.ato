@@ -1,15 +1,22 @@
 """BLE binary watch - top level.
 
 Blocks: PowerSupply (pads, nPM1100, LiPo), McuCore (nRF52840 + RF + SWD),
-Accelerometer (LIS2DW12), BinaryDisplay (11 yellow LEDs).
+Accelerometer (LIS2DW12), BinaryDisplay (11 yellow LEDs),
+StatusLeds (red + green heartbeat), BatterySense (VBAT divider to the SAADC).
 
-GPIO map (all low-frequency signals, kept on the left/top edges away from the RF corner):
-  LED hours   16,8,4,2,1      P0.02 P0.03 P0.28 P0.29 P0.30
-  LED minutes 32,16,8,4,2,1   P0.31 P0.04 P0.05 P0.06 P0.07 P0.08
-  I2C SCL / SDA               P0.26 / P0.27
-  Accel INT1 / INT2           P0.11 / P0.12
-  Charger CHG / ERR (in, pull-up)  P1.08 / P1.09
-  Ship mode (out)             P0.13
+GPIO map. Every signal that also exists on the DK uses the same nRF pin as the DK
+breadboard and app/boards/nrf52840dk_nrf52840.overlay, so the tested wiring is the PCB wiring.
+  Same as the DK:
+    LED hours   16,8,4,2,1      P1.04 P1.05 P1.06 P1.07 P1.08
+    LED minutes 32,16,8,4,2,1   P1.10 P1.11 P1.12 P1.13 P1.14 P1.15
+    I2C SDA / SCL               P0.26 / P0.27
+    Accel INT1                  P1.03
+    Status LED green / red      P0.13 / P0.14
+    Battery sense (VBAT / 2)    P0.03 = AIN1
+  Watch only (not on the DK, firmware not written yet):
+    Accel INT2 (spare)          P0.12
+    Charger CHG / ERR (in, pull-up)  P0.11 / P1.09
+    Ship mode (out)             P0.15
 """
 
 import ElectricPower
@@ -18,6 +25,8 @@ from "power.ato" import PowerSupply
 from "mcu.ato" import McuCore
 from "accel.ato" import Accelerometer
 from "display.ato" import BinaryDisplay
+from "status.ato" import StatusLeds
+from "status.ato" import BatterySense
 
 
 module Watch:
@@ -25,33 +34,43 @@ module Watch:
     core = new McuCore
     accel = new Accelerometer
     face = new BinaryDisplay
+    status = new StatusLeds
+    battery = new BatterySense
 
     # ---- power distribution ----
     power.rail_3v0 ~ core.power
     power.rail_3v0 ~ accel.power
     face.gnd ~ power.rail_3v0.lv
+    status.gnd ~ power.rail_3v0.lv
+    battery.gnd ~ power.rail_3v0.lv
     assert power.rail_3v0.voltage within 2.9V to 3.1V
 
     # ---- display ----
-    face.hour[0] ~ core.soc.P0_02
-    face.hour[1] ~ core.soc.P0_03
-    face.hour[2] ~ core.soc.P0_28
-    face.hour[3] ~ core.soc.P0_29
-    face.hour[4] ~ core.soc.P0_30
-    face.minute[0] ~ core.soc.P0_31
-    face.minute[1] ~ core.soc.P0_04
-    face.minute[2] ~ core.soc.P0_05
-    face.minute[3] ~ core.soc.P0_06
-    face.minute[4] ~ core.soc.P0_07
-    face.minute[5] ~ core.soc.P0_08
+    face.hour[0] ~ core.soc.P1_04      # H16  (DK D3)
+    face.hour[1] ~ core.soc.P1_05      # H8   (DK D4)
+    face.hour[2] ~ core.soc.P1_06      # H4   (DK D5)
+    face.hour[3] ~ core.soc.P1_07      # H2   (DK D6)
+    face.hour[4] ~ core.soc.P1_08      # H1   (DK D7)
+    face.minute[0] ~ core.soc.P1_10    # M32  (DK D8)
+    face.minute[1] ~ core.soc.P1_11    # M16  (DK D9)
+    face.minute[2] ~ core.soc.P1_12    # M8   (DK D10)
+    face.minute[3] ~ core.soc.P1_13    # M4   (DK D11)
+    face.minute[4] ~ core.soc.P1_14    # M2   (DK D12)
+    face.minute[5] ~ core.soc.P1_15    # M1   (DK D13)
 
     # ---- accelerometer ----
-    accel.scl ~ core.soc.P0_26
-    accel.sda ~ core.soc.P0_27
-    accel.int1 ~ core.soc.P0_11
+    accel.sda ~ core.soc.P0_26
+    accel.scl ~ core.soc.P0_27
+    accel.int1 ~ core.soc.P1_03        # DK D2
     accel.int2 ~ core.soc.P0_12
 
     # ---- charger status + ship mode ----
-    power.chg_n ~ core.soc.P1_08
+    power.chg_n ~ core.soc.P0_11
     power.err_n ~ core.soc.P1_09
-    power.ship_mode ~ core.soc.P0_13
+    power.ship_mode ~ core.soc.P0_15
+
+    # ---- heartbeat LEDs + battery level ----
+    status.green ~ core.soc.P0_13
+    status.red ~ core.soc.P0_14
+    battery.vbat ~ power.battery.hv
+    battery.sense ~ core.soc.P0_03     # AIN1

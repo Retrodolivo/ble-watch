@@ -75,7 +75,8 @@ two = [("1", "p1"), ("2", "p2")]
 passives = [
     ("R_1k_0402", R, "RC0402FR-071KL", "YAGEO", "R", "1 kOhm 1% 0402 (LED current limit)", "Device.kicad_symdir/R.kicad_sym", "C106235"),
     ("R_4k7_0402", R, "RC0402FR-074K7L", "YAGEO", "R", "4.7 kOhm 1% 0402 (I2C pull-up, charge current set)", "Device.kicad_symdir/R.kicad_sym", "C105871"),
-    ("R_10k_0402", R, "RC0402FR-0710KL", "YAGEO", "R", "10 kOhm 1% 0402 (NTC substitute)", "Device.kicad_symdir/R.kicad_sym", "C60490"),
+    ("R_10k_0402", R, "RC0402FR-0710KL", "YAGEO", "R", "10 kOhm 1% 0402 (NTC substitute, status LED current limit)", "Device.kicad_symdir/R.kicad_sym", "C60490"),
+    ("R_1M_0402", R, "RC0402FR-071ML", "YAGEO", "R", "1 MOhm 1% 0402 (battery voltage divider)", "Device.kicad_symdir/R.kicad_sym", "C138033"),
     ("R_0R_0402", R, "RC0402JR-070RL", "YAGEO", "R", "0 Ohm jumper 0402 (antenna tuning placeholder)", "Device.kicad_symdir/R.kicad_sym", "C60485"),
     ("C_100nF_0402", C4, "GRM155R71C104KA88D", "Murata", "C", "100 nF 16 V X7R 0402", "Device.kicad_symdir/C.kicad_sym", "C71629"),
     ("C_1uF_0402", C4, "GRM155R61A105KE15D", "Murata", "C", "1 uF 10 V X5R 0402", "Device.kicad_symdir/C.kicad_sym", "C76999"),
@@ -96,6 +97,10 @@ for n, fp, mpn, mfr, pre, doc, sym, lcsc in passives:
 # ---------- diodes ----------
 part("LED_Yellow_0603", "LED_SMD.pretty/LED_0603_1608Metric.kicad_mod", "LTST-C190KSKT", "Lite-On", "D",
      "Yellow LED 0603. Pad 1 = cathode.", [("1", "K"), ("2", "A")], bridge=("A", "K"), symbol="Device.kicad_symdir/LED.kicad_sym", lcsc="C125095")
+part("LED_Red_0603", "LED_SMD.pretty/LED_0603_1608Metric.kicad_mod", "LTST-C190KRKT", "Lite-On", "D",
+     "Red LED 0603 (631 nm, AlInGaP). Pad 1 = cathode.", [("1", "K"), ("2", "A")], bridge=("A", "K"), symbol="Device.kicad_symdir/LED.kicad_sym", lcsc="C94869")
+part("LED_Green_0603", "LED_SMD.pretty/LED_0603_1608Metric.kicad_mod", "LTST-C190KGKT", "Lite-On", "D",
+     "Yellow-green LED 0603 (572 nm, AlInGaP, Vf close to the red one). Pad 1 = cathode.", [("1", "K"), ("2", "A")], bridge=("A", "K"), symbol="Device.kicad_symdir/LED.kicad_sym", lcsc="C125094")
 part("D_RB521S30", "Diode_SMD.pretty/D_SOD-523.kicad_mod", "RB521S30T1G", "onsemi", "D",
      "30 V 200 mA Schottky, SOD-523. Pad 1 = cathode.", [("1", "K"), ("2", "A")], bridge=("A", "K"), symbol="Device.kicad_symdir/D_Schottky.kicad_sym", lcsc="C145179")
 part("D_TVS_TPD1E10B06", "Diode_SMD.pretty/D_0402_1005Metric.kicad_mod", "TPD1E10B06DPYR", "Texas Instruments", "D",

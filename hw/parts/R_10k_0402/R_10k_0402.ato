@@ -5,7 +5,7 @@ import has_part_picked
 import can_bridge_by_name
 
 component R_10k_0402:
-    """10 kOhm 1% 0402 (NTC substitute)"""
+    """10 kOhm 1% 0402 (NTC substitute, status LED current limit)"""
     trait is_atomic_part<manufacturer="YAGEO", partnumber="RC0402FR-0710KL", footprint="R_0402_1005Metric.kicad_mod", symbol="R_10k_0402.kicad_sym">
     trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C60490", manufacturer="YAGEO", partno="RC0402FR-0710KL">
     trait has_designator_prefix<prefix="R">

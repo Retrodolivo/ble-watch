@@ -1,0 +1,54 @@
+#pragma experiment("BRIDGE_CONNECT")
+"""Battery status: red + green heartbeat LEDs and the VBAT divider for the SAADC.
+
+Matches the firmware (app/boards/nrf52840dk_nrf52840.overlay, nodes status_led and vbatt).
+
+Heartbeat LEDs: GPIO --[10k]--> LED --> GND. Active high (on the DK they are active low).
+  Both are AlInGaP (Vf ~1.7-1.8 V at this current), so one resistor value fits both:
+  (3.0 V - ~1.75 V) / 10 kOhm = ~0.12 mA, a dim flash. VERIFY brightness through the resin.
+
+Battery divider: VBAT --[1M]--+--[1M]-- GND, 100 nF from the middle to GND.
+  Always on: 4.2 V / 2 MOhm = 2.1 uA. The middle (VBAT / 2, max 2.1 V) goes to an AIN pin.
+  The firmware's voltage-divider node uses output-ohms = 1M, full-ohms = 2M: keep them in sync.
+"""
+
+import Electrical
+
+from "parts/LED_Red_0603/LED_Red_0603.ato" import LED_Red_0603
+from "parts/LED_Green_0603/LED_Green_0603.ato" import LED_Green_0603
+from "parts/R_10k_0402/R_10k_0402.ato" import R_10k_0402
+from "parts/R_1M_0402/R_1M_0402.ato" import R_1M_0402
+from "parts/C_100nF_0402/C_100nF_0402.ato" import C_100nF_0402
+
+
+module StatusLeds:
+    gnd = new Electrical
+    red = new Electrical
+    """GPIO, high = red LED on."""
+    green = new Electrical
+    """GPIO, high = green LED on."""
+
+    led_red = new LED_Red_0603
+    r_red = new R_10k_0402
+    red ~> r_red ~> led_red ~> gnd
+
+    led_green = new LED_Green_0603
+    r_green = new R_10k_0402
+    green ~> r_green ~> led_green ~> gnd
+
+
+module BatterySense:
+    gnd = new Electrical
+    vbat = new Electrical
+    """Battery positive (before the nPM1100)."""
+    sense = new Electrical
+    """VBAT / 2, to an AIN pin."""
+
+    r_top = new R_1M_0402
+    r_bottom = new R_1M_0402
+    vbat ~> r_top ~> sense
+    sense ~> r_bottom ~> gnd
+
+    c_sense = new C_100nF_0402
+    """Holds the charge the SAADC's sampling capacitor takes (the divider alone is 500 kOhm)."""
+    sense ~> c_sense ~> gnd

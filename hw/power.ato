@@ -109,4 +109,4 @@ module PowerSupply:
     chg_n ~ pmic.CHG
     err_n ~ pmic.ERR
     ship_mode ~ pmic.SHPACT
-    # SHPHLD: OPEN QUESTION. Left unconnected for now (see README).
+    # SHPHLD: unconnected (no button). OPEN QUESTION: internal pull-up, or tie it high? (see README)

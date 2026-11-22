@@ -30,3 +30,11 @@ DEVICE_DT_GET(gpio0)      -> &__device_dts_ord_11                        (driver
 ## Takeaways
 - Wrong node name or alias = **build error**, not a runtime bug.
 - `status = "disabled"` = no device struct = `gpio_is_ready_dt()` would fail / link error.
+
+## Same pins on the DK and the watch
+- The watch PCB (`hw/main.ato`) uses the same nRF pin for every signal that the DK breadboard has
+  (face P1.04–P1.15, INT1 P1.03, I²C P0.26/P0.27, status LEDs P0.13/P0.14, battery AIN1).
+  So the wiring tested on the breadboard is the wiring on the PCB.
+- The watch still gets its own board devicetree in Step 5. Pin numbers carry over; what changes is
+  the board around them: no `arduino_header` / `arduino_i2c` names (use `&gpio1 3` and `&i2c0`
+  with pinctrl directly), `GPIO_ACTIVE_HIGH` status LEDs, and the nPM1100 pins.
