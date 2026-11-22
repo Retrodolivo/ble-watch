@@ -10,6 +10,34 @@ config FACE_BRIGHTNESS
 	help
 	  PWM duty cycle of a lit face LED. Lower = dimmer and less current.
 
+config HEARTBEAT_PERIOD_S
+	int "Heartbeat period, in seconds"
+	range 2 3600
+	default 60
+	help
+	  The status LED flashes once per period, in the battery colour.
+
+config HEARTBEAT_FLASH_MS
+	int "Heartbeat flash length, in milliseconds"
+	range 1 1000
+	default 100
+
+config BATTERY_LOW_MV
+	int "Low battery voltage, in mV"
+	range 3000 4200
+	default 3600
+	help
+	  Below this voltage the heartbeat flashes red (LiPo about < 15 %), otherwise green.
+
+config BATTERY_HYSTERESIS_MV
+	int "Low battery hysteresis, in mV"
+	range 0 500
+	default 50
+	help
+	  Once red, the heartbeat goes back to green only at or above
+	  BATTERY_LOW_MV + this value. Stops red/green flicker when the
+	  battery sits right at the threshold.
+
 endmenu
 
 # Zephyr's own options. Every app Kconfig file must end with this.

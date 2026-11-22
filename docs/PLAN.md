@@ -15,8 +15,8 @@ Steps 1b and 4b add CI/CD (build and release automation on GitHub) and don't cha
 - Learn: GitHub Actions (workflows, jobs, steps, runners, artifacts), installing a runner as a service, reproducible builds with a pinned toolchain, caching, why self-hosted runners on public repos are risky.
 - Done when: a push to GitHub starts a build on the VPS, the commit gets a green check (or a red cross when the build breaks), and the firmware can be downloaded from the run page.
 
-## Step 2: The clock  ← current
-- Build: timekeeping with the RTC, the time shown in binary (24-hour) for a few seconds after a double-tap, then the LEDs turn off and the chip goes back to sleep.
+## Step 2: The clock
+- Build: timekeeping with the RTC, the time shown in binary (24-hour) for a few seconds after a double-tap, then the LEDs turn off and the chip goes back to sleep. Plus red and green heartbeat LEDs that flash once a minute, coloured by the battery voltage (SAADC through a resistor divider); on the DK a potentiometer stands in for the battery.
 - Learn: nRF52840 clocks and RTC, Zephyr timers, work queues and threads, sleep and power management, measuring current (e.g. with a Power Profiler Kit).
 - Done when: it keeps time for 24 h and the idle current has been measured.
 
